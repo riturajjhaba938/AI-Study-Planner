@@ -85,4 +85,4 @@ graph TD
 Internal hackathon project. Created with ❤️ by **Rituraj Jha**.
 
 ---
-*Created for the 2026 AI Innovation Hackathon.*
+*Created for the 2026 AI Study Planner Hackathon.*
