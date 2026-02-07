@@ -147,6 +147,69 @@ const checkBadges = (user) => {
         });
     }
 
+    // Badge 4: Weekend Warrior
+    const hasWeekendSession = user.studyLog.some(log => {
+        const d = new Date(log.date);
+        return d.getDay() === 0 || d.getDay() === 6;
+    });
+    if (!existingBadgeIds.has('weekend_warrior') && hasWeekendSession) {
+        newBadges.push({
+            id: 'weekend_warrior',
+            name: 'Weekend Warrior',
+            icon: 'Calendar',
+            description: 'Logged a study session on a weekend.'
+        });
+    }
+
+    // Badge 5: Night Owl (10 PM - 4 AM)
+    const hasNightSession = user.studyLog.some(log => {
+        const h = new Date(log.date).getHours();
+        return h >= 22 || h < 4;
+    });
+    if (!existingBadgeIds.has('night_owl') && hasNightSession) {
+        newBadges.push({
+            id: 'night_owl',
+            name: 'Night Owl',
+            icon: 'Moon',
+            description: 'Studied late into the night (10 PM - 4 AM).'
+        });
+    }
+
+    // Badge 6: Early Bird (4 AM - 9 AM)
+    const hasMorningSession = user.studyLog.some(log => {
+        const h = new Date(log.date).getHours();
+        return h >= 4 && h < 9;
+    });
+    if (!existingBadgeIds.has('early_bird') && hasMorningSession) {
+        newBadges.push({
+            id: 'early_bird',
+            name: 'Early Bird',
+            icon: 'Sun',
+            description: 'Started the day with a study session (4 AM - 9 AM).'
+        });
+    }
+
+    // Badge 7: Marathoner (> 4 hours single session)
+    const maxSession = Math.max(...user.studyLog.map(l => l.durationMinutes || 0));
+    if (!existingBadgeIds.has('marathoner') && maxSession >= 240) {
+        newBadges.push({
+            id: 'marathoner',
+            name: 'Marathoner',
+            icon: 'Zap',
+            description: 'Completed a single study session longer than 4 hours.'
+        });
+    }
+
+    // Badge 8: Target Smasher (50 Hours Total)
+    if (!existingBadgeIds.has('target_smasher') && user.totalMinutesStudied >= 3000) {
+        newBadges.push({
+            id: 'target_smasher',
+            name: 'Target Smasher',
+            icon: 'Trophy', // Using trophy instead of target for achievement feel
+            description: 'Clocked over 50 hours of total study time!'
+        });
+    }
+
     // Add to user
     if (newBadges.length > 0) {
         user.badges.push(...newBadges);

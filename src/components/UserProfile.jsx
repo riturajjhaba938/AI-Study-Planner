@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { User, LogOut, Flame, X, Camera } from 'lucide-react';
+import { User, LogOut, Flame, X, Camera, Footprints, Brain, Calendar, Moon, Sun, Zap, Trophy } from 'lucide-react';
 
 const UserProfile = ({ user, onLogout, onClose, onUpdateUser }) => {
     if (!user) return null;
@@ -88,21 +88,40 @@ const UserProfile = ({ user, onLogout, onClose, onUpdateUser }) => {
                 <div className="mb-8">
                     <h3 className="text-sm font-bold text-slate-700 uppercase mb-3">Achieved Badges</h3>
                     {user.badges && user.badges.length > 0 ? (
-                        <div className="grid grid-cols-3 gap-2">
-                            {user.badges.map((badge, idx) => (
-                                <div key={idx} className="flex flex-col items-center p-2 bg-indigo-50 rounded-lg text-center" title={badge.description}>
-                                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mb-1">
-                                        {/* Simple icon mapping or fallback */}
-                                        <span className="text-lg">🏆</span>
+                        <div className="grid grid-cols-3 gap-3">
+                            {user.badges.map((badge, idx) => {
+                                // Dynamic Icon Mapping
+                                let BadgeIcon = Flame;
+                                if (badge.id === 'first_step') BadgeIcon = Footprints;
+                                if (badge.id === 'focus_master') BadgeIcon = Brain;
+                                if (badge.id === 'streak_master') BadgeIcon = Flame;
+                                if (badge.id === 'weekend_warrior') BadgeIcon = Calendar;
+                                if (badge.id === 'night_owl') BadgeIcon = Moon;
+                                if (badge.id === 'early_bird') BadgeIcon = Sun;
+                                if (badge.id === 'marathoner') BadgeIcon = Zap;
+                                if (badge.id === 'target_smasher') BadgeIcon = Trophy;
+
+                                return (
+                                    <div key={idx} className="group relative flex flex-col items-center p-3 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors cursor-help">
+                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-indigo-600 mb-2 shadow-sm">
+                                            <BadgeIcon size={20} />
+                                        </div>
+                                        <span className="text-[10px] font-bold text-slate-700 leading-tight text-center">{badge.name}</span>
+
+                                        {/* Tooltip */}
+                                        <div className="absolute bottom-full mb-2 hidden group-hover:block w-32 p-2 bg-slate-800 text-white text-xs rounded-lg z-50 shadow-lg text-center">
+                                            {badge.description}
+                                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                                        </div>
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-700 leading-tight">{badge.name}</span>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
-                        <p className="text-sm text-slate-400 italic text-center py-4 bg-slate-50 rounded-lg border border-slate-100">
-                            No badges yet. Start studying!
-                        </p>
+                        <div className="text-center py-6 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                            <p className="text-sm text-slate-500 font-medium">No badges yet.</p>
+                            <p className="text-xs text-slate-400">Start studying to earn rewards!</p>
+                        </div>
                     )}
                 </div>
 
