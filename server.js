@@ -231,6 +231,7 @@ app.post('/api/generate-plan', async (req, res) => {
                         subjects: req.body.subjects,
                         availability: req.body.availability,
                         targetDate: req.body.targetDate,
+                        targetDates: req.body.targetDates || [],
                         college: req.body.college,
                         branch: req.body.branch,
                         graduationYear: req.body.gradYear

@@ -62,6 +62,10 @@ function App() {
         localStorage.setItem('currentUser', JSON.stringify(newUserState)); // Updated to currentUser
     };
 
+    const handleEditPlan = () => {
+        setIsPlanGenerated(false);
+    };
+
     // Auth Flow
     if (!currentUser) { // Updated to currentUser
         return (
@@ -121,12 +125,15 @@ function App() {
             )}
 
             {!isPlanGenerated ? (
-                <InputForm onGenerate={handlePlanGenerated} user={currentUser} />
+                <InputForm
+                    onGenerate={handlePlanGenerated}
+                    user={currentUser}
+                    initialData={userData}
+                />
             ) : (
                 <Dashboard
                     initialData={{ schedule: planData, user: userData }}
-                    onGenerate={handlePlanGenerated}
-                    user={currentUser}
+                    onEditPlan={handleEditPlan}
                 />
             )}
         </div>

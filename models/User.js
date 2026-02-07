@@ -48,7 +48,11 @@ const UserSchema = new mongoose.Schema({
         preferredTime: { type: String, default: 'Night' }
     },
 
-    targetDate: { type: Date, required: true },
+    targetDate: { type: Date, required: true }, // Keep as primary/next date
+    targetDates: [{
+        label: String,
+        date: Date
+    }],
     subjects: [SubjectSchema],
 
     // This stores the AI-generated plan so we don't re-run the API constantly
