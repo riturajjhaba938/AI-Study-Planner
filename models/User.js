@@ -16,6 +16,31 @@ const UserSchema = new mongoose.Schema({
     graduationYear: Number,
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
+    profilePicture: { type: String }, // Base64 string
+    streak: { type: Number, default: 0 },
+    lastLogin: { type: Date, default: Date.now },
+    studyLog: [{
+        date: { type: Date, default: Date.now },
+        topicId: String,
+        topicName: String,
+        durationMinutes: Number,
+        notes: String,
+        pauseCount: { type: Number, default: 0 },
+        segments: [{
+            timestamp: { type: Date, default: Date.now },
+            durationMinutes: Number,
+            achievement: String
+        }]
+    }],
+
+    totalMinutesStudied: { type: Number, default: 0 },
+    badges: [{
+        id: String,
+        name: String,
+        icon: String, // e.g. 'award', 'zap', 'target'
+        description: String,
+        earnedAt: { type: Date, default: Date.now }
+    }],
 
     availability: {
         weekdays: { type: Number, default: 3 },

@@ -69,18 +69,124 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
-        // Return user info (excluding password)
+        // --- Streak Logic ---
+        const today = new Date();
+        const lastLogin = new Date(user.lastLogin);
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        // Strip time for accurate day comparison
+        today.setHours(0, 0, 0, 0);
+        lastLogin.setHours(0, 0, 0, 0);
+
+        const diffDays = Math.round(Math.abs((today - lastLogin) / oneDay));
+
+        if (diffDays === 1) {
+            // Consecutive day login
+            user.streak += 1;
+        } else if (diffDays > 1) {
+            // Missed a day (or more)
+            user.streak = 1;
+        }
+        // If diffDays === 0, same day login, do nothing
+
+        user.lastLogin = new Date();
+        await user.save();
+
+        // Return user info
         res.json({
             msg: 'Login Successful',
             user: {
                 id: user._id,
-                name: user.name,
                 email: user.email,
-                // Check if they already have a plan
+                streak: user.streak,
+                profilePicture: user.profilePicture,
+                studyLog: user.studyLog, // Send logs to frontend
+                badges: user.badges || [], // Send badges
                 hasPlan: !!user.generatedPlan
             }
         });
 
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Helper: Check for new badges
+const checkBadges = (user) => {
+    const newBadges = [];
+    const existingBadgeIds = new Set(user.badges.map(b => b.id));
+
+    // Badge 1: First Step
+    if (!existingBadgeIds.has('first_step') && user.studyLog.length >= 1) {
+        newBadges.push({
+            id: 'first_step',
+            name: 'First Step',
+            icon: 'Footprints',
+            description: 'Completed your first study session.'
+        });
+    }
+
+    // Badge 2: Focus Master (100 mins)
+    if (!existingBadgeIds.has('focus_master') && user.totalMinutesStudied >= 100) {
+        newBadges.push({
+            id: 'focus_master',
+            name: 'Focus Master',
+            icon: 'Brain',
+            description: 'Studied for over 100 minutes total.'
+        });
+    }
+
+    // Badge 3: Streak Master (3 days)
+    if (!existingBadgeIds.has('streak_master') && user.streak >= 3) {
+        newBadges.push({
+            id: 'streak_master',
+            name: 'Streak Master',
+            icon: 'Flame',
+            description: 'Maintained a 3-day study streak.'
+        });
+    }
+
+    // Add to user
+    if (newBadges.length > 0) {
+        user.badges.push(...newBadges);
+    }
+
+    return newBadges;
+};
+
+// Log Study Session Route
+app.post('/api/log-study', async (req, res) => {
+    try {
+        const { userId, topicId, topicName, durationMinutes, notes, pauseCount, segments } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        user.studyLog.push({
+            topicId,
+            topicName,
+            durationMinutes,
+            notes,
+            pauseCount: pauseCount || 0,
+            segments: segments || [],
+            date: new Date()
+        });
+
+        // Update Total Minutes
+        user.totalMinutesStudied = (user.totalMinutesStudied || 0) + durationMinutes;
+
+        // Check Badges
+        const newBadges = checkBadges(user);
+
+        await user.save();
+        res.json({
+            msg: 'Session logged',
+            studyLog: user.studyLog,
+            streak: user.streak,
+            badges: user.badges,
+            newBadges: newBadges
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -149,7 +255,35 @@ app.post('/api/generate-plan', async (req, res) => {
     }
 });
 
-const PORT = 5000;
+// Update User Route
+app.put('/api/user/update', async (req, res) => {
+    try {
+        const { userId, name, profilePicture } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        if (name) user.name = name;
+        if (profilePicture) user.profilePicture = profilePicture;
+
+        await user.save();
+        res.json({
+            msg: 'Profile updated', user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                streak: user.streak,
+                profilePicture: user.profilePicture,
+                badges: user.badges
+            }
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brain, Plus, Send, Trash2, Clock, BookOpen, User, Calendar as CalendarIcon } from 'lucide-react';
 
 const InputForm = ({ onGenerate, user }) => {
@@ -15,6 +15,19 @@ const InputForm = ({ onGenerate, user }) => {
         },
         subjects: [{ name: '', credits: 3, confidenceLevel: 3, weakAreas: '', strongAreas: '' }]
     });
+
+    // Load saved form data on mount
+    useEffect(() => {
+        const savedData = localStorage.getItem('studyPlannerFormData');
+        if (savedData) {
+            setFormData(JSON.parse(savedData));
+        }
+    }, []);
+
+    // Save form data on change
+    useEffect(() => {
+        localStorage.setItem('studyPlannerFormData', JSON.stringify(formData));
+    }, [formData]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -85,58 +98,64 @@ const InputForm = ({ onGenerate, user }) => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto pt-8 p-6 font-sans text-slate-800">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <Brain className="text-indigo-600" /> AI Study Setup
-            </h1>
-            <p className="text-slate-500 mb-8">Tell us about your goals, and we'll craft the perfect schedule.</p>
+        <div className="max-w-4xl mx-auto animate-in">
+            <div className="text-center mb-10">
+                <h1 className="text-4xl font-extrabold text-slate-800 mb-2 flex items-center justify-center gap-3">
+                    <Brain className="text-indigo-600 w-10 h-10" />
+                    <span className="text-gradient">AI Study Setup</span>
+                </h1>
+                <p className="text-slate-500 font-medium">Tell us about your goals, and we'll craft the perfect schedule.</p>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
 
                 {/* 1. Personal Details */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-700">
-                        <User size={20} className="text-indigo-500" /> Student Profile
+                <div className="glass-card p-8 rounded-3xl">
+                    <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-slate-800">
+                        <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                            <User size={24} />
+                        </div>
+                        Student Profile
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Full Name</label>
                             <input
                                 type="text" placeholder="e.g. Rituraj Jha"
-                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all"
                                 value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Target Exam Date</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Target Exam Date</label>
                             <input
                                 type="date"
-                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all"
                                 value={formData.targetDate} onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })} required
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">College / University</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">College / University</label>
                             <input
                                 type="text" placeholder="e.g. IIT Bombay"
-                                className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all"
                                 value={formData.college} onChange={(e) => setFormData({ ...formData, college: e.target.value })}
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Branch</label>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Branch</label>
                                 <input
                                     type="text" placeholder="CSE"
-                                    className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:border-indigo-500"
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500"
                                     value={formData.branch} onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Grad Year</label>
+                                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Grad Year</label>
                                 <input
                                     type="number" placeholder="2026"
-                                    className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:border-indigo-500"
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500"
                                     value={formData.gradYear} onChange={(e) => setFormData({ ...formData, gradYear: e.target.value })}
                                 />
                             </div>
@@ -145,33 +164,36 @@ const InputForm = ({ onGenerate, user }) => {
                 </div>
 
                 {/* 2. Availability */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-700">
-                        <Clock size={20} className="text-indigo-500" /> Study Availability
+                <div className="glass-card p-8 rounded-3xl">
+                    <h2 className="text-xl font-bold mb-6 flex items-center gap-3 text-slate-800">
+                        <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+                            <Clock size={24} />
+                        </div>
+                        Study Availability
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Weekday Hours (Daily)</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Weekday Hours (Daily)</label>
                             <input
                                 type="number" min="0" max="24"
-                                className="w-full p-2 border border-slate-300 rounded-lg"
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl"
                                 value={formData.availability.weekdays}
                                 onChange={(e) => updateAvailability('weekdays', parseInt(e.target.value))}
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Weekend Hours (Daily)</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Weekend Hours (Daily)</label>
                             <input
                                 type="number" min="0" max="24"
-                                className="w-full p-2 border border-slate-300 rounded-lg"
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl"
                                 value={formData.availability.weekends}
                                 onChange={(e) => updateAvailability('weekends', parseInt(e.target.value))}
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Preferred Time</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Preferred Time</label>
                             <select
-                                className="w-full p-2 border border-slate-300 rounded-lg bg-white"
+                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl"
                                 value={formData.availability.preferredTime}
                                 onChange={(e) => updateAvailability('preferredTime', e.target.value)}
                             >
@@ -184,69 +206,83 @@ const InputForm = ({ onGenerate, user }) => {
                 </div>
 
                 {/* 3. Subjects */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-bold flex items-center gap-2 text-slate-700">
-                            <BookOpen size={20} className="text-indigo-500" /> Subjects
+                <div className="glass-card p-8 rounded-3xl">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-3 text-slate-800">
+                            <div className="p-2 bg-pink-100 rounded-lg text-pink-600">
+                                <BookOpen size={24} />
+                            </div>
+                            Subjects
                         </h2>
-                        <button type="button" onClick={addSubject} className="text-sm bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-medium hover:bg-indigo-100 flex items-center gap-1">
-                            <Plus size={16} /> Add
+                        <button type="button" onClick={addSubject} className="text-sm bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl font-bold hover:bg-indigo-100 flex items-center gap-2 transition-colors">
+                            <Plus size={18} /> Add Subject
                         </button>
                     </div>
 
                     <div className="space-y-6">
                         {formData.subjects.map((subject, index) => (
-                            <div key={index} className="p-4 bg-slate-50 rounded-xl border border-slate-100 relative">
-                                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-3">
+                            <div key={index} className="p-6 bg-white/50 rounded-2xl border border-slate-200 relative group hover:border-indigo-200 transition-all">
+                                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4">
                                     <div className="md:col-span-6">
+                                        <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Subject Name</label>
                                         <input
-                                            type="text" placeholder="Subject Name (e.g. DBMS)"
-                                            className="w-full p-2 border border-slate-300 rounded-lg font-medium focus:border-indigo-500 outline-none"
+                                            type="text" placeholder="e.g. DBMS"
+                                            className="w-full p-3 bg-white border border-slate-200 rounded-xl font-semibold text-slate-700 focus:border-indigo-500 outline-none"
                                             value={subject.name}
                                             onChange={(e) => updateSubject(index, 'name', e.target.value)}
                                             required
                                         />
                                     </div>
                                     <div className="md:col-span-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-slate-400">CREDITS</span>
-                                            <input
-                                                type="number" min="1" max="10"
-                                                className="w-full p-2 border border-slate-300 rounded-lg text-center"
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-bold text-slate-400 uppercase mb-1">Credits (1-5)</span>
+                                            <select
+                                                className="w-full p-3 bg-white border border-slate-200 rounded-xl"
                                                 value={subject.credits}
                                                 onChange={(e) => updateSubject(index, 'credits', parseInt(e.target.value))}
-                                            />
+                                            >
+                                                {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
+                                            </select>
                                         </div>
                                     </div>
                                     <div className="md:col-span-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-slate-400">CONFIDENCE (1-5)</span>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-bold text-slate-400 uppercase mb-1">Confidence: {subject.confidenceLevel}</span>
                                             <input
-                                                type="number" min="1" max="5"
-                                                className="w-full p-2 border border-slate-300 rounded-lg text-center"
+                                                type="range" min="1" max="5" step="1"
+                                                className="w-full accent-indigo-600 mt-3"
                                                 value={subject.confidenceLevel}
                                                 onChange={(e) => updateSubject(index, 'confidenceLevel', parseInt(e.target.value))}
                                             />
+                                            <div className="flex justify-between text-[10px] text-slate-400 px-1">
+                                                <span>Low</span><span>High</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <input
-                                        type="text" placeholder="Weak Areas (comma separated, e.g. Normalization, SQL)"
-                                        className="w-full p-2 text-sm border border-red-100 bg-red-50/50 rounded-lg focus:border-red-300 outline-none placeholder:text-red-200"
-                                        value={subject.weakAreas}
-                                        onChange={(e) => updateSubject(index, 'weakAreas', e.target.value)}
-                                    />
-                                    <input
-                                        type="text" placeholder="Strong Areas (comma separated)"
-                                        className="w-full p-2 text-sm border border-emerald-100 bg-emerald-50/50 rounded-lg focus:border-emerald-300 outline-none placeholder:text-emerald-200"
-                                        value={subject.strongAreas}
-                                        onChange={(e) => updateSubject(index, 'strongAreas', e.target.value)}
-                                    />
+                                    <div>
+                                        <label className="block text-xs font-bold text-red-400 uppercase mb-1">Weak Areas</label>
+                                        <input
+                                            type="text" placeholder="Comma separated, e.g. Normalization"
+                                            className="w-full p-3 text-sm border border-red-100 bg-red-50/30 rounded-xl focus:border-red-300 outline-none placeholder:text-red-200/70"
+                                            value={subject.weakAreas}
+                                            onChange={(e) => updateSubject(index, 'weakAreas', e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-emerald-400 uppercase mb-1">Strong Areas</label>
+                                        <input
+                                            type="text" placeholder="Comma separated"
+                                            className="w-full p-3 text-sm border border-emerald-100 bg-emerald-50/30 rounded-xl focus:border-emerald-300 outline-none placeholder:text-emerald-200/70"
+                                            value={subject.strongAreas}
+                                            onChange={(e) => updateSubject(index, 'strongAreas', e.target.value)}
+                                        />
+                                    </div>
                                 </div>
 
                                 {formData.subjects.length > 1 && (
-                                    <button type="button" onClick={() => removeSubject(index)} className="absolute -top-2 -right-2 bg-white text-slate-400 hover:text-red-500 p-1 rounded-full shadow-sm border border-slate-100">
+                                    <button type="button" onClick={() => removeSubject(index)} className="absolute -top-3 -right-3 bg-white text-slate-400 hover:text-red-500 p-2 rounded-full shadow-md border border-slate-100 opacity-0 group-hover:opacity-100 transition-all">
                                         <Trash2 size={16} />
                                     </button>
                                 )}
@@ -255,8 +291,8 @@ const InputForm = ({ onGenerate, user }) => {
                     </div>
                 </div>
 
-                <button type="submit" className="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg flex justify-center items-center gap-2 hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 transform hover:-translate-y-0.5">
-                    <Send size={20} /> Generate My Adaptive Plan
+                <button type="submit" className="w-full btn-primary py-4 text-xl flex justify-center items-center gap-3">
+                    <Send size={22} /> Generate My Adaptive Plan
                 </button>
             </form>
         </div>
