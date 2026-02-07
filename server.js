@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -10,12 +11,13 @@ app.use(cors());
 app.use(express.json());
 
 // --- Database Connection ---
-mongoose.connect('mongodb://localhost:27017/ai-study-planner', {
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-study-planner';
+mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.error('MongoDB Connection Error:', err));
+    .then(() => console.log('✅ MongoDB Connected:', MONGODB_URI.includes('mongodb.net') ? 'MongoDB Atlas' : 'Local'))
+    .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 // --- Auth Routes ---
 
