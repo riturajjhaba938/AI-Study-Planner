@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Brain, Plus, Send, Trash2, Clock, BookOpen, User, Calendar as CalendarIcon } from 'lucide-react';
 
-const InputForm = ({ onGenerate }) => {
+const InputForm = ({ onGenerate, user }) => {
     const [formData, setFormData] = useState({
-        name: '',
+        name: user?.name || '',
         college: '',
         branch: '',
         gradYear: '',
@@ -28,6 +28,7 @@ const InputForm = ({ onGenerate }) => {
             // Transform comma-separated areas into arrays
             const payload = {
                 ...formData,
+                email: user?.email, // Attach email for backend mapping
                 subjects: formData.subjects.map(sub => ({
                     ...sub,
                     weakAreas: sub.weakAreas ? sub.weakAreas.split(',').map(s => s.trim()).filter(Boolean) : [],

@@ -15,6 +15,7 @@ const UserSchema = new mongoose.Schema({
     branch: String,
     graduationYear: Number,
     email: { type: String, unique: true, required: true },
+    password: { type: String, required: true },
 
     availability: {
         weekdays: { type: Number, default: 3 },

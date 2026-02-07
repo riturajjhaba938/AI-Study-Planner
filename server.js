@@ -1,28 +1,106 @@
 const express = require('express');
 const cors = require('cors');
-const StudyPlanner = require('./studyPlanner'); // Assuming in same dir
-// const User = require('./models/User'); // Mongoose model if needed later
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const StudyPlanner = require('./studyPlanner');
+const User = require('./models/User');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// API Route
-app.post('/api/generate-plan', (req, res) => {
+// --- Database Connection ---
+mongoose.connect('mongodb://localhost:27017/ai-study-planner', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => console.log('MongoDB Connected'))
+    .catch(err => console.error('MongoDB Connection Error:', err));
+
+// --- Auth Routes ---
+
+// Signup
+app.post('/api/auth/signup', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+
+        // Check if user exists
+        let user = await User.findOne({ email });
+        if (user) {
+            return res.status(400).json({ msg: 'User already exists' });
+        }
+
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create user (with dummy targetDate to satisfy schema initially)
+        user = new User({
+            name,
+            email,
+            password: hashedPassword,
+            targetDate: new Date() // Will be updated during plan generation
+        });
+
+        await user.save();
+
+        res.status(201).json({ msg: 'User registered successfully', userId: user._id, name: user.name });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Login
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check user
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ msg: 'Invalid Credentials' });
+        }
+
+        // Check password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ msg: 'Invalid Credentials' });
+        }
+
+        // Return user info (excluding password)
+        res.json({
+            msg: 'Login Successful',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                // Check if they already have a plan
+                hasPlan: !!user.generatedPlan
+            }
+        });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// --- Study Plan Routes ---
+
+app.post('/api/generate-plan', async (req, res) => {
     try {
         console.log("Received Request:", req.body);
+        const { email } = req.body; // Expect email to link to user
 
         // 1. Adapt Input Data
-        // If the frontend sends data matching Mongoose schema, use adapter.
-        // Or if it matches raw input, pass directly. 
-        // We'll assume frontend sends the "User Schema" structure.
         const plannerConfig = StudyPlanner.fromUserSchema({
             subjects: req.body.subjects,
-            availability: req.body.availability || { weekdays: 3, weekends: 6, preferredTime: 'Night' }, // Default
+            availability: req.body.availability || { weekdays: 3, weekends: 6, preferredTime: 'Night' },
             startDate: new Date(),
-            // Mock other fields if missing
-            name: "User",
-            targetDate: "2026-03-15"
+            name: req.body.name,
+            targetDate: req.body.targetDate
         });
 
         // 2. Run Logic Engine
@@ -31,14 +109,31 @@ app.post('/api/generate-plan', (req, res) => {
         planner.sortTopicsByPrerequisites();
         const schedule = planner.generateSchedule();
 
-        // Heuristic fallback for insights since we aren't using a live LLM API
         const insights = [
             `Your confidence in ${planner.allTopics.filter(t => t.confidence <= 2)[0]?.name || 'weak areas'} is low. We've allocated extra High-Focus hours here.`,
             "Prerequisite gap identified: Foundations are scheduled before complex topics.",
             "Buffer time clearly marked for Sunday to prevent burnout."
         ];
 
-        // 3. Return JSON
+        // 3. Save to Database (if user exists)
+        if (email) {
+            await User.findOneAndUpdate(
+                { email },
+                {
+                    $set: {
+                        generatedPlan: { sprint: schedule, insights },
+                        subjects: req.body.subjects,
+                        availability: req.body.availability,
+                        targetDate: req.body.targetDate,
+                        college: req.body.college,
+                        branch: req.body.branch,
+                        graduationYear: req.body.gradYear
+                    }
+                }
+            );
+        }
+
+        // 4. Return JSON
         res.status(200).json({
             success: true,
             message: "Plan generated via Logic Engine",
@@ -56,5 +151,5 @@ app.post('/api/generate-plan', (req, res) => {
 
 const PORT = 5000;
 app.listen(PORT, () => {
-    console.log(`Logic Engine Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
