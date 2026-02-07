@@ -3,12 +3,18 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 const StudyPlanner = require('./studyPlanner');
 const User = require('./models/User');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the React app in production
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, 'dist')));
+}
 
 // --- Database Connection ---
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-study-planner';
@@ -404,6 +410,13 @@ app.put('/api/user/update', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+// Serve React frontend for all other routes (must be after API routes)
+if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    });
+}
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
