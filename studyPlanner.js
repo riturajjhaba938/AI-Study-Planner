@@ -325,3 +325,5 @@ function generateNextSteps(sprint) {
         "Summarize Process vs Thread memory models."
     ];
 }
+
+module.exports = StudyPlanner;
