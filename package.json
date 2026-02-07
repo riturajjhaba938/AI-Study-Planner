@@ -5,11 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "vite",
-    "build": "vite build",
-    "build:prod": "npm install && vite build",
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "build:prod": "npm install && npx vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "npx vite preview"
   },
   "keywords": [],
   "author": "Rituraj Jha",
