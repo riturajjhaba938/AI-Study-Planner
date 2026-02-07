@@ -77,12 +77,28 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(false);
 
     // Simulate API call
-    const generatePlan = () => {
+    const generatePlan = async () => {
         setLoading(true);
-        setTimeout(() => {
-            setSchedule(MOCK_SCHEDULE);
+        try {
+            const response = await fetch('http://localhost:5000/api/generate-plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData) // Send the state to the backend
+            });
+            const result = await response.json();
+
+            // Ensure result.data.sprint exists before setting
+            if (result.data && result.data.sprint) {
+                setSchedule(result.data.sprint);
+            } else {
+                console.error("Invalid API response format", result);
+            }
+
+        } catch (error) {
+            console.error("Connection failed:", error);
+        } finally {
             setLoading(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -119,8 +135,8 @@ const Dashboard = () => {
                                     <div className="flex items-center gap-2">
                                         {/* Dynamic Badge Color */}
                                         <span className={`px-2 py-1 rounded text-xs font-bold ${sub.confidence <= 2 ? 'bg-red-100 text-red-700' :
-                                                sub.confidence === 3 ? 'bg-amber-100 text-amber-700' :
-                                                    'bg-emerald-100 text-emerald-700'
+                                            sub.confidence === 3 ? 'bg-amber-100 text-amber-700' :
+                                                'bg-emerald-100 text-emerald-700'
                                             }`}>
                                             {sub.confidence <= 2 ? 'High Load' : sub.confidence === 3 ? 'Medium' : 'Low Load'}
                                         </span>
@@ -194,8 +210,8 @@ const Dashboard = () => {
                                             <div className="grid gap-3">
                                                 {day.items.map((item, iIdx) => (
                                                     <div key={iIdx} className={`p-4 rounded-xl border transition-all hover:shadow-md ${item.focusLevel === 'High Focus'
-                                                            ? 'bg-amber-50 border-amber-200 hover:border-amber-300'
-                                                            : 'bg-white border-slate-100 hover:border-indigo-200'
+                                                        ? 'bg-amber-50 border-amber-200 hover:border-amber-300'
+                                                        : 'bg-white border-slate-100 hover:border-indigo-200'
                                                         }`}>
                                                         <div className="flex justify-between items-start mb-2">
                                                             <div>
