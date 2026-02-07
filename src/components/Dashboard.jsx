@@ -61,17 +61,19 @@ const MOCK_SCHEDULE = [
     }
 ];
 
-const Dashboard = () => {
+const Dashboard = ({ initialData }) => {
     // Main state to hold user and study plan data
-    const [userData, setUserData] = useState({
-        name: "Rituraj Jha", // Personalized default
+    // If we came from InputForm, use that data. Otherwise default.
+    const [userData, setUserData] = useState(initialData?.user || {
+        name: "Rituraj Jha",
         targetDate: "2026-03-15",
-        subjects: [
-            { name: "Data Structures", confidence: 2, cognitiveLoad: "High" },
-            { name: "Operating Systems", confidence: 4, cognitiveLoad: "Medium" },
-            { name: "DBMS", confidence: 3, cognitiveLoad: "Medium" }
-        ]
+        subjects: []
     });
+
+    // If schedule passed in props, use it.
+    const [schedule, setSchedule] = useState(initialData?.schedule || null);
+    const [loading, setLoading] = useState(false);
+
 
     const [schedule, setSchedule] = useState(null);
     const [loading, setLoading] = useState(false);
