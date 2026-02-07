@@ -12,15 +12,23 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
-            const data = await res.json();
-            if (res.ok) {
-                alert('Account created! Please log in.');
-                onSwitchToLogin();
+
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const data = await res.json();
+                if (res.ok) {
+                    alert('Account created! Please log in.');
+                    onSwitchToLogin();
+                } else {
+                    alert(data.msg || data.error || 'Signup failed');
+                }
             } else {
-                alert(data.msg || data.error || 'Signup failed');
+                const errorText = await res.text();
+                console.error('Non-JSON Response:', errorText);
+                alert(`Server Error (${res.status}): The server returned an invalid response. See console for details.`);
             }
         } catch (err) {
-            console.error('Signup Error:', err);
+            console.error('Signup Network Error:', err);
             alert('Connection/Server Error. Please check Render logs.');
         }
     };
