@@ -60,7 +60,6 @@ const InputForm = ({ onGenerate, user, initialData }) => {
                 }))
             };
 
-            console.log("Submitting:", payload);
             const response = await fetch('http://localhost:5000/api/generate-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

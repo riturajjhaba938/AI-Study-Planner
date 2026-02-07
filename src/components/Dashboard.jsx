@@ -3,6 +3,7 @@ import { Calendar, Brain, TrendingUp, AlertCircle, Clock, CheckCircle2, PlayCirc
 import StudyTimer from './StudyTimer';
 import InsightsPanel from './InsightsPanel';
 import CompletionTimeline from './CompletionTimeline';
+import ConfidenceTrends from './ConfidenceTrends';
 
 const Dashboard = ({ initialData, onEditPlan }) => {
     // Main state to hold user and study plan data
@@ -235,6 +236,9 @@ const Dashboard = ({ initialData, onEditPlan }) => {
 
                     {/* Completion Timeline */}
                     {schedule && <CompletionTimeline schedule={schedule} userData={userData} />}
+
+                    {/* Confidence Tracking */}
+                    <ConfidenceTrends user={userData} />
                 </section>
 
                 {/* Main Schedule Column */}

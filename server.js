@@ -321,6 +321,65 @@ app.post('/api/generate-plan', async (req, res) => {
     }
 });
 
+// Update Confidence Tracking Route
+app.post('/api/update-confidence', async (req, res) => {
+    try {
+        const { userId, subjectName, newConfidence } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        // Find the subject and update confidence
+        const subject = user.subjects.find(s => s.name === subjectName);
+        if (!subject) {
+            return res.status(404).json({ msg: 'Subject not found' });
+        }
+
+        const oldConfidence = subject.confidence;
+        subject.confidence = newConfidence;
+
+        // Track confidence change in history
+        if (!user.confidenceHistory) {
+            user.confidenceHistory = [];
+        }
+
+        user.confidenceHistory.push({
+            subjectName,
+            oldConfidence,
+            newConfidence,
+            recordedAt: new Date()
+        });
+
+        // Check if rebalancing is needed (confidence improved by 1+ level)
+        const needsRebalancing = newConfidence > oldConfidence;
+        let rebalancingSuggestion = null;
+
+        if (needsRebalancing) {
+            // Calculate time that could be reallocated
+            const subject = user.subjects.find(s => s.name === subjectName);
+            const timeSaved = Math.round(subject.credits * 30); // 30 mins per credit level improvement
+
+            rebalancingSuggestion = {
+                message: `Great progress! Since your confidence in ${subjectName} improved from ${oldConfidence} to ${newConfidence}, consider reallocating ${timeSaved} minutes to weaker subjects.`,
+                timeSaved,
+                suggestedAction: 'regenerate_plan'
+            };
+        }
+
+        await user.save();
+
+        res.json({
+            msg: 'Confidence updated',
+            confidenceHistory: user.confidenceHistory,
+            needsRebalancing,
+            rebalancingSuggestion
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // Update User Route
 app.put('/api/user/update', async (req, res) => {
     try {

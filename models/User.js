@@ -45,7 +45,8 @@ const UserSchema = new mongoose.Schema({
     // Confidence tracking over time
     confidenceHistory: [{
         subjectName: String,
-        confidence: { type: Number, min: 1, max: 5 },
+        oldConfidence: { type: Number, min: 1, max: 5 },
+        newConfidence: { type: Number, min: 1, max: 5 },
         recordedAt: { type: Date, default: Date.now }
     }],
 
