@@ -42,6 +42,13 @@ const UserSchema = new mongoose.Schema({
         earnedAt: { type: Date, default: Date.now }
     }],
 
+    // Confidence tracking over time
+    confidenceHistory: [{
+        subjectName: String,
+        confidence: { type: Number, min: 1, max: 5 },
+        recordedAt: { type: Date, default: Date.now }
+    }],
+
     availability: {
         weekdays: { type: Number, default: 3 },
         weekends: { type: Number, default: 6 },

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Calendar, Brain, TrendingUp, AlertCircle, Clock, CheckCircle2, PlayCircle } from 'lucide-react';
 import StudyTimer from './StudyTimer';
+import InsightsPanel from './InsightsPanel';
+import CompletionTimeline from './CompletionTimeline';
 
 const Dashboard = ({ initialData, onEditPlan }) => {
     // Main state to hold user and study plan data
@@ -188,6 +190,9 @@ const Dashboard = ({ initialData, onEditPlan }) => {
                 </div>
             </header>
 
+            {/* Actionable Insights Panel */}
+            {schedule && <InsightsPanel schedule={schedule} userData={userData} />}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Input & Stats Column */}
                 <section className="lg:col-span-1 space-y-6">
@@ -227,6 +232,9 @@ const Dashboard = ({ initialData, onEditPlan }) => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Completion Timeline */}
+                    {schedule && <CompletionTimeline schedule={schedule} userData={userData} />}
                 </section>
 
                 {/* Main Schedule Column */}
