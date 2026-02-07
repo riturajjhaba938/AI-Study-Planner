@@ -17,10 +17,11 @@ const Signup = ({ onSignupSuccess, onSwitchToLogin }) => {
                 alert('Account created! Please log in.');
                 onSwitchToLogin();
             } else {
-                alert(data.msg || 'Signup failed');
+                alert(data.msg || data.error || 'Signup failed');
             }
         } catch (err) {
-            alert('Server error');
+            console.error('Signup Error:', err);
+            alert('Connection/Server Error. Please check Render logs.');
         }
     };
 

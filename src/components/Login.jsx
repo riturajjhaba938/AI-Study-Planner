@@ -16,10 +16,11 @@ const Login = ({ onLoginSuccess, onSwitchToSignup }) => {
             if (res.ok) {
                 onLoginSuccess(data.user);
             } else {
-                alert(data.msg || 'Login failed');
+                alert(data.msg || data.error || 'Login failed');
             }
         } catch (err) {
-            alert('Server error');
+            console.error('Login Error:', err);
+            alert('Connection/Server Error. Please check Render logs.');
         }
     };
 
