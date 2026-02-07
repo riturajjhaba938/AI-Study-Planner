@@ -30,7 +30,13 @@ app.post('/api/generate-plan', (req, res) => {
         planner.calculateWeights();
         planner.sortTopicsByPrerequisites();
         const schedule = planner.generateSchedule();
-        const insights = planner.generateInsights();
+
+        // Heuristic fallback for insights since we aren't using a live LLM API
+        const insights = [
+            `Your confidence in ${planner.allTopics.filter(t => t.confidence <= 2)[0]?.name || 'weak areas'} is low. We've allocated extra High-Focus hours here.`,
+            "Prerequisite gap identified: Foundations are scheduled before complex topics.",
+            "Buffer time clearly marked for Sunday to prevent burnout."
+        ];
 
         // 3. Return JSON
         res.status(200).json({

@@ -95,7 +95,7 @@ const Dashboard = () => {
             }
 
         } catch (error) {
-            console.error("Connection failed:", error);
+            console.error("Link to server failed:", error);
         } finally {
             setLoading(false);
         }
