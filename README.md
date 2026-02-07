@@ -1,8 +1,8 @@
 # EduFlow AI: Smart Study Planner for Engineers 🎓🚀
 
 **EduFlow AI** is a sophisticated, AI-driven study planning engine designed specifically for engineering students. It optimizes study schedules by analyzing subject credits, personal confidence levels, and cognitive load to ensure maximum retention and efficiency.
-
 [![Demo Video](https://img.shields.io/badge/Demo-Watch%20on%20YouTube-red?style=for-the-badge&logo=youtube)](https://youtu.be/YnWd4WyIHC4)
+[![Live App](https://img.shields.io/badge/Live_App-Render-blue?style=for-the-badge&logo=render)](https://ai-study-planner-u1qg.onrender.com)
 
 ## 🌟 Key Features
 
