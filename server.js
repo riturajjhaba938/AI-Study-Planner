@@ -14,13 +14,38 @@ app.use(express.json());
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, 'dist')));
+    console.log('🚀 Production Mode: Serving static files from /dist');
 }
+
+// Health Check Endpoint
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        uptime: process.uptime(),
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        env: process.env.NODE_ENV,
+        timestamp: new Date()
+    });
+});
 
 // --- Database Connection ---
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-study-planner';
+console.log('⌛ Connecting to MongoDB...');
+
 mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ MongoDB Connected:', MONGODB_URI.includes('mongodb.net') ? 'MongoDB Atlas' : 'Local'))
-    .catch(err => console.error('❌ MongoDB Connection Error:', err));
+    .then(() => {
+        const type = MONGODB_URI.includes('mongodb.net') ? 'MongoDB Atlas' : 'Local';
+        console.log(`✅ MongoDB Connected (${type})`);
+        console.log(`📡 Database Name: ${mongoose.connection.name}`);
+    })
+    .catch(err => {
+        console.error('❌ MongoDB Connection Error!');
+        console.error('Error Code:', err.code);
+        console.error('Error Message:', err.message);
+        if (err.message.includes('IP not whitelisted')) {
+            console.error('👉 TIP: Check your MongoDB Atlas Network Access (IP Whitelist)');
+        }
+    });
 
 // --- Auth Routes ---
 
@@ -59,6 +84,7 @@ app.post('/api/auth/signup', async (req, res) => {
 
 // Login
 app.post('/api/auth/login', async (req, res) => {
+    console.log(`📩 Login attempt received for: ${req.body?.email}`);
     try {
         const { email, password } = req.body;
 
