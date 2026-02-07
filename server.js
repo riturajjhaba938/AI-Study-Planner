@@ -12,10 +12,7 @@ app.use(express.json());
 
 // --- Database Connection ---
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-study-planner';
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ MongoDB Connected:', MONGODB_URI.includes('mongodb.net') ? 'MongoDB Atlas' : 'Local'))
     .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
