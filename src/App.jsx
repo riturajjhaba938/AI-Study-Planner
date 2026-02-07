@@ -123,7 +123,11 @@ function App() {
             {!isPlanGenerated ? (
                 <InputForm onGenerate={handlePlanGenerated} user={currentUser} />
             ) : (
-                <Dashboard initialData={{ schedule: planData, user: userData }} />
+                <Dashboard
+                    initialData={{ schedule: planData, user: userData }}
+                    onGenerate={handlePlanGenerated}
+                    user={currentUser}
+                />
             )}
         </div>
     );
