@@ -52,8 +52,8 @@ app.post('/api/auth/signup', async (req, res) => {
         res.status(201).json({ msg: 'User registered successfully', userId: user._id, name: user.name });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('DEBUG - Signup Logic Crash:', err);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
     }
 });
 
@@ -113,8 +113,11 @@ app.post('/api/auth/login', async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('DEBUG - Login Logic Crash:', err);
+        res.status(500).json({
+            msg: 'Server Error',
+            error: err.message
+        });
     }
 });
 
@@ -257,8 +260,8 @@ app.post('/api/log-study', async (req, res) => {
             newBadges: newBadges
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('DEBUG - Log Study Logic Crash:', err);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
     }
 });
 
@@ -379,8 +382,8 @@ app.post('/api/update-confidence', async (req, res) => {
             rebalancingSuggestion
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('DEBUG - Update Confidence Logic Crash:', err);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
     }
 });
 
@@ -407,8 +410,8 @@ app.put('/api/user/update', async (req, res) => {
             }
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('DEBUG - Update User Logic Crash:', err);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
     }
 });
 
