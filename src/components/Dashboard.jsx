@@ -55,7 +55,7 @@ const Dashboard = ({ initialData, onEditPlan }) => {
     const handleFinishSession = async (sessionData) => {
         try {
             // Save to Backend
-            const res = await fetch('http://localhost:5000/api/log-study', {
+            const res = await fetch('/api/log-study', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -96,7 +96,7 @@ const Dashboard = ({ initialData, onEditPlan }) => {
     const generatePlan = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/generate-plan', {
+            const response = await fetch('/api/generate-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData) // Send the state to the backend

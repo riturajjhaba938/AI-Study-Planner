@@ -102,6 +102,7 @@ app.post('/api/auth/login', async (req, res) => {
             msg: 'Login Successful',
             user: {
                 id: user._id,
+                name: user.name, // Include name to prevent charAt errors
                 email: user.email,
                 streak: user.streak,
                 profilePicture: user.profilePicture,

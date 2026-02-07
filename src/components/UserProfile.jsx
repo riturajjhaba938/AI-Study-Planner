@@ -24,7 +24,7 @@ const UserProfile = ({ user, onLogout, onClose, onUpdateUser }) => {
         reader.onloadend = async () => {
             const base64String = reader.result;
             try {
-                const res = await fetch('http://localhost:5000/api/user/update', {
+                const res = await fetch('/api/user/update', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -69,7 +69,7 @@ const UserProfile = ({ user, onLogout, onClose, onUpdateUser }) => {
                             <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full bg-indigo-100 flex items-center justify-center text-3xl font-bold text-indigo-600">
-                                {user.name.charAt(0).toUpperCase()}
+                                {user.name?.charAt(0).toUpperCase() || '?'}
                             </div>
                         )}
                         <div

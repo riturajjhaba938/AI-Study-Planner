@@ -105,7 +105,7 @@ function App() {
                                 {currentUser.profilePicture ? (
                                     <img src={currentUser.profilePicture} alt="Avg" className="w-full h-full object-cover" />
                                 ) : (
-                                    currentUser.name.charAt(0).toUpperCase()
+                                    currentUser.name?.charAt(0).toUpperCase() || '?'
                                 )}
                             </div>
                             <span className="text-sm font-medium text-slate-700 hidden sm:block">{currentUser.name}</span>
