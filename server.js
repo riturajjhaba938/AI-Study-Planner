@@ -30,7 +30,10 @@ app.get('/api/health', (req, res) => {
 
 // --- Database Connection ---
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ai-study-planner';
-console.log('⌛ Connecting to MongoDB...');
+
+// Masked URI for logging
+const maskedURI = MONGODB_URI.replace(/\/\/.*@/, "//****:****@").split('?')[0];
+console.log(`⌛ Connecting to MongoDB: ${maskedURI}`);
 
 mongoose.connect(MONGODB_URI)
     .then(() => {
@@ -40,11 +43,7 @@ mongoose.connect(MONGODB_URI)
     })
     .catch(err => {
         console.error('❌ MongoDB Connection Error!');
-        console.error('Error Code:', err.code);
         console.error('Error Message:', err.message);
-        if (err.message.includes('IP not whitelisted')) {
-            console.error('👉 TIP: Check your MongoDB Atlas Network Access (IP Whitelist)');
-        }
     });
 
 // --- Auth Routes ---
@@ -100,25 +99,26 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
-        // --- Streak Logic ---
+        // --- Streak Logic (with Guards) ---
         const today = new Date();
-        const lastLogin = new Date(user.lastLogin);
-        const oneDay = 24 * 60 * 60 * 1000;
+        const lastLoginValue = user.lastLogin || new Date();
+        const lastLogin = new Date(lastLoginValue);
 
-        // Strip time for accurate day comparison
-        today.setHours(0, 0, 0, 0);
-        lastLogin.setHours(0, 0, 0, 0);
+        if (!isNaN(lastLogin.getTime())) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            today.setHours(0, 0, 0, 0);
+            lastLogin.setHours(0, 0, 0, 0);
 
-        const diffDays = Math.round(Math.abs((today - lastLogin) / oneDay));
+            const diffDays = Math.round(Math.abs((today - lastLogin) / oneDay));
 
-        if (diffDays === 1) {
-            // Consecutive day login
-            user.streak += 1;
-        } else if (diffDays > 1) {
-            // Missed a day (or more)
-            user.streak = 1;
+            if (diffDays === 1) {
+                user.streak += 1;
+            } else if (diffDays > 1) {
+                user.streak = 1;
+            }
+        } else {
+            console.warn(`⚠️ Invalid lastLogin date for user ${user.email}: ${lastLoginValue}`);
         }
-        // If diffDays === 0, same day login, do nothing
 
         user.lastLogin = new Date();
         await user.save();
@@ -448,7 +448,18 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('🔥 UNHANDLED ERROR:', err);
+    res.status(500).json({
+        msg: 'Critical Server Error',
+        error: err.message,
+        path: req.path
+    });
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Server environment: ${process.env.NODE_ENV || 'development'}`);
 });
