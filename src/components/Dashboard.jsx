@@ -75,8 +75,7 @@ const Dashboard = ({ initialData }) => {
     const [loading, setLoading] = useState(false);
 
 
-    const [schedule, setSchedule] = useState(null);
-    const [loading, setLoading] = useState(false);
+
 
     // Simulate API call
     const generatePlan = async () => {
